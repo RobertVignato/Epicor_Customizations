@@ -1,0 +1,85 @@
+// edvOrderHed_EpiViewNotification
+
+
+private void edvOrderHed_EpiViewNotification(EpiDataView view, EpiNotifyArgs args)
+{
+	// ** Argument Properties and Uses **
+	// view.dataView[args.Row]["FieldName"]
+	// args.Row, args.Column, args.Sender, args.NotifyType
+	// NotifyType.Initialize, NotifyType.AddRow, NotifyType.DeleteRow, NotifyType.InitLastView, NotifyType.InitAndResetTreeNodes
+
+	// RV Mod
+	//MessageBox.Show(args.NotifyType.ToString());
+
+	if ((args.NotifyType == EpiTransaction.NotifyType.Initialize))
+	{
+
+		if (args.Row > -1)
+		{
+			if(Convert.ToInt32(edvOrderHed.dataView[edvOrderHed.Row]["OrderNum"].ToString()) > 0)
+			{
+				int rel = 0;
+				for(int i=0; i < edvOrderRel.dataView.Table.Rows.Count; i++)
+				{
+					if (edvOrderRel.dataView.Table.Rows[i]["FirmRelease"].ToString() == "False")
+						rel += 1;
+						
+				}
+
+				if (rel > 0)
+				{
+					eshReleased.Enabled = true;
+					eshReleased.Status = Epicor.Mfg.UI.FrameWork.StatusTypes.Warning;
+					eshReleased.EnabledCaption = "Not Released";
+					btnSetFirmRelease.ReadOnly = false;
+				}
+				else
+				{
+					btnSetFirmRelease.ReadOnly = true;
+					eshReleased.Enabled = true;
+					eshReleased.EnabledCaption = "Released";
+					eshReleased.Status = Epicor.Mfg.UI.FrameWork.StatusTypes.OK;
+				}
+
+			}
+		}
+		else
+		{
+			btnSetFirmRelease.ReadOnly = true;
+			eshReleased.Enabled = false;
+			eshReleased.DisabledCaption = "";
+		}
+
+	}
+
+	if ((args.NotifyType == EpiTransaction.NotifyType.AddRow))
+	{
+		if ((args.Row > -1))
+		{
+			edvOrderHed.dataView[edvOrderHed.Row]["RequestDate"] = Convert.ToDateTime("02/22/2222");
+			edvOrderHed.dataView[edvOrderHed.Row]["Date01"] = Convert.ToDateTime("02/22/2222");
+			edvOrderHed.dataView[edvOrderHed.Row]["ShortChar01"] = "STD";
+			edvOrderHed.dataView[edvOrderHed.Row]["ShortChar02"] = "";
+		}
+	}
+
+	if (args.Row < 0)
+	{
+		epiCurrencyEditorC1.Text = "0";
+	}
+
+	if (args.Row > -1)
+	{
+		decimal totalCharges = 0;
+		decimal totalDiscount = 0;
+		decimal netAmount = 0;
+
+		totalCharges = Convert.ToDecimal(edvOrderHed.dataView[edvOrderHed.Row]["DocTotalCharges"]);
+		totalDiscount = Convert.ToDecimal(edvOrderHed.dataView[edvOrderHed.Row]["DocTotalDiscount"]);
+
+		netAmount = totalCharges - totalDiscount;
+
+		epiCurrencyEditorC1.Text = netAmount.ToString();
+	}
+
+}

@@ -1,0 +1,56 @@
+// oTrans_ordAdapter_BeforeAdapterMethod(object sender, BeforeAdapterMethodArgs args)
+
+
+
+
+
+	private void oTrans_ordAdapter_BeforeAdapterMethod(object sender, BeforeAdapterMethodArgs args)
+	{
+		// ** Argument Properties and Uses **
+		// ** args.MethodName **
+		// ** Add Event Handler Code **
+
+		// ** Use MessageBox to find adapter method name
+		// EpiMessageBox.Show(args.MethodName);
+
+		switch (args.MethodName)
+		{
+			case "Update":
+				if (edvOrderDtl.dataView.Count > 0 )
+			    {
+					//MessageBox.Show("before update " +   edvOrderDtl.dataView[edvOrderDtl.Row]["rowmod"].ToString());
+					drnum = edvOrderDtl.Row;
+					if (edvOrderDtl.dataView[edvOrderDtl.Row]["rowmod"].ToString() != "")
+						flag1 = true;
+				}
+
+				if (edvOrderHed.dataView.Count > 0)
+				{
+					OrderNum = (int)edvOrderHed.dataView[edvOrderHed.Row]["OrderNum"];
+					CustNum = (int)edvOrderHed.dataView[edvOrderHed.Row]["CustNum"];
+					PoNum = edvOrderHed.dataView[edvOrderHed.Row]["PONum"].ToString();
+					int dups = (int)CallSalesOrderAdapterGetListCustomMethod(OrderNum, CustNum, PoNum);
+					if(dups>0) 
+						MessageBox.Show("The PO entered is a duplicate for the customer!  This is a warning only.","Important Note",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
+					
+				
+
+					string caseSwitch = edvOrderHed.dataView[edvOrderHed.Row]["ShortChar02"].ToString();
+					switch (caseSwitch)
+					{
+					    case "Y":
+					        break;
+					    case "N":
+					        break;
+					    default:
+					        Exception ex = new Exception("COM Flag must be set to either Yes or No.");
+							ExceptionBox.Show(ex);
+							args.Cancel = true;
+					        break;
+					}
+				}
+
+				break;
+		}
+
+	}
